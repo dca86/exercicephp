@@ -27,26 +27,18 @@ function getColumns($connection, $table) {
     return $query->fetchAll(PDO::FETCH_ASSOC);
 }
 
-/*function getColumns($connection, $table) {
-    $sql = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_NAME = ?";
-    $query = $connection->prepare($sql);
-    $query->execute([$table]);
-    return $query->fetchAll(PDO::FETCH_ASSOC);
-}*/
 
 function save($connection, $table, $data) {
-    // INSERT INTO $table (columns...) VALUES (values...);
-    // INSERT INTO plant_db (nom, possesseur) VALUES (:nom, :possesseur)
     $columns = array_keys($data);
-    $columnsStr = implode(', ', $columns); // split ; join
-    $placeholdersStr = ':' . implode(', :', $columns); // split ; join
+    $columnsStr = implode(', ', $columns); 
+    $placeholdersStr = ':' . implode(', :', $columns); 
     $sql = 'INSERT INTO ' . $table . ' (' . $columnsStr . ') VALUES (' . $placeholdersStr . ');';
     try {
         $query = $connection->prepare($sql);
         foreach ($data as $key => $value) {
             $query->bindValue(':'.$key, $value);
             echo 'value => ' . $value . '<br>';
-            // $query->bindParam(':nom', valeur de nom dans $data);
+            
         }
         $query->execute();
     } catch (PDOException $e) {
@@ -56,28 +48,25 @@ function save($connection, $table, $data) {
 }
 
 function edit($connection, $table, $data, $id) {
-    // INSERT INTO $table (columns...) VALUES (values...);
-    // INSERT INTO jeux_video (nom, possesseur) VALUES (:nom, :possesseur)
+  
     $columns = array_keys($data);
-    $columnsStr = implode(', ', $columns); // split ; join
-    $placeholdersStr = ':' . implode(', :', $columns); // split ; join
+    $columnsStr = implode(', ', $columns); 
+    $placeholdersStr = ':' . implode(', :', $columns); 
     $sql = 'UPDATE ' . $table . ' SET ';
     foreach ($columns as $col) {
         $sql .= $col . ' = :' . $col . ', ';
-        // name = :name, possesseur = :possesseur, 
+        
     }
 
-    $sql = rtrim($sql, ', '); // remove last comma
+    $sql = rtrim($sql, ', '); 
     $sql .= ' WHERE id = :id';
-
-    // UPDATE plant_db SET name = :name, possesseur = :possesseur WHERE id = :id
 
     try {
         $query = $connection->prepare($sql);
         foreach ($data as $key => $value) {
             $query->bindValue(':'.$key, $value !== '' ? $value : null);
             echo 'value => ' . $value . '<br>';
-            // $query->bindParam(':nom', valeur de nom dans $data);
+            
         }
         $query->bindValue(':id', $id);
         $query->execute();
